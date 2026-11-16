@@ -26,6 +26,9 @@ interface AppContextValue {
   role: UserRole;
   setRole: (role: UserRole) => void;
   currentUser: string;
+  isAuthenticated: boolean;
+  login: (role?: UserRole) => void;
+  logout: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -45,8 +48,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [theme, setTheme] = useState<ThemeMode>('dark');
   const [role, setRole] = useState<UserRole>('manager');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('triagesphere_authenticated') === 'true';
+    }
+    return false;
+  });
 
   const currentUser = role === 'manager' ? 'Marcus Chen (Operations Director)' : 'Priya Nair (Support Engineer)';
+
+  const login = useCallback((selectedRole?: UserRole) => {
+    if (selectedRole) {
+      setRole(selectedRole);
+    }
+    setIsAuthenticated(true);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('triagesphere_authenticated', 'true');
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    setIsAuthenticated(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('triagesphere_authenticated');
+    }
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
@@ -266,6 +292,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         role,
         setRole,
         currentUser,
+        isAuthenticated,
+        login,
+        logout,
       }}
     >
       {children}
