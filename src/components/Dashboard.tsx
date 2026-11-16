@@ -6,14 +6,14 @@ import { TicketDrawer } from './TicketDrawer';
 import { IngestModal } from './IngestModal';
 import { SphereLogo } from './SphereLogo';
 import { useApp } from '../context/AppContext';
-import { Activity, Sun, Moon, Briefcase, UserCheck, LogOut } from 'lucide-react';
+import { Activity, Sun, Moon, Briefcase, UserCheck } from 'lucide-react';
 
 type View = 'triage' | 'bi';
 
 export function Dashboard() {
   const [activeView, setActiveView] = useState<View>('triage');
   const [showIngest, setShowIngest] = useState(false);
-  const { selectedTicket, setSelectedTicket, theme, toggleTheme, role, setRole, currentUser, logout } = useApp();
+  const { selectedTicket, setSelectedTicket, theme, toggleTheme, role, setRole, currentUser } = useApp();
 
   return (
     <div
@@ -148,21 +148,6 @@ export function Dashboard() {
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-
-            {/* Sign Out Button */}
-            <button
-              onClick={logout}
-              className="h-8 px-2.5 rounded-xl flex items-center gap-1.5 text-xs font-medium transition-all flex-shrink-0"
-              style={{
-                background: theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-                color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(15,23,42,0.6)',
-              }}
-              title="Sign Out to Login Portal"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
