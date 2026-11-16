@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import type { Ticket, TicketStatus, Department, Priority } from '../types';
 import { seedTickets } from '../data/seedTickets';
 import { classifyTicket, generateActivityLogEntry } from '../utils/aiEngine';
+import { authenticateUser, type AuthUser } from '../utils/authEngine';
 
 export type ThemeMode = 'dark' | 'light';
 export type UserRole = 'manager' | 'agent';
@@ -26,6 +27,10 @@ interface AppContextValue {
   role: UserRole;
   setRole: (role: UserRole) => void;
   currentUser: string;
+  authUser: AuthUser | null;
+  isAuthenticated: boolean;
+  loginWithCredentials: (email: string, password: string) => { success: boolean; error?: string };
+  logout: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -44,9 +49,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [tickets, setTickets] = useState<Ticket[]>(seedTickets);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [theme, setTheme] = useState<ThemeMode>('dark');
-  const [role, setRole] = useState<UserRole>('manager');
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem('triagesphere_active_user');
+        return stored ? JSON.parse(stored) : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
-  const currentUser = role === 'manager' ? 'Marcus Chen (Operations Director)' : 'Priya Nair (Support Engineer)';
+  const isAuthenticated = authUser !== null;
+  const role: UserRole = authUser ? authUser.role : 'manager';
+  const currentUser = authUser ? authUser.name : 'Mohammad Hasan (Operations Director)';
+
+  const setRole = useCallback((newRole: UserRole) => {
+    setAuthUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, role: newRole };
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('triagesphere_active_user', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  }, []);
+
+  const loginWithCredentials = useCallback((email: string, password: string) => {
+    const result = authenticateUser(email, password);
+    if (result.success && result.user) {
+      setAuthUser(result.user);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('triagesphere_active_user', JSON.stringify(result.user));
+      }
+      return { success: true };
+    }
+    return { success: false, error: result.error || 'Authentication failed' };
+  }, []);
+
+  const logout = useCallback(() => {
+    setAuthUser(null);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('triagesphere_active_user');
+    }
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
@@ -266,6 +313,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         role,
         setRole,
         currentUser,
+        authUser,
+        isAuthenticated,
+        loginWithCredentials,
+        logout,
       }}
     >
       {children}

@@ -1,17 +1,29 @@
 import { useState } from 'react';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import { Dashboard } from './components/Dashboard';
 import { LoadingScreen } from './components/LoadingScreen';
+import { LoginScreen } from './components/LoginScreen';
 import { AmbientCursorGlow } from './components/AmbientCursorGlow';
 
-export default function App() {
+function AppContent() {
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useApp();
 
   return (
-    <AppProvider>
+    <>
       {loading && <LoadingScreen onFinish={() => setLoading(false)} />}
       <AmbientCursorGlow />
-      <Dashboard />
+      {!loading && (
+        isAuthenticated ? <Dashboard /> : <LoginScreen />
+      )}
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <AppContent />
     </AppProvider>
   );
 }

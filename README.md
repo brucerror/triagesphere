@@ -121,7 +121,7 @@ The user interface was engineered to deliver an ultra-premium, tactile digital e
 ## 6. Project Structure
 
 ```text
-aetherops/
+triagesphere/
 ├── index.html                   # HTML entry point with system fonts
 ├── package.json                 # Dependency manifests & build scripts
 ├── tsconfig.json                # Strict TypeScript configuration
@@ -160,10 +160,10 @@ aetherops/
 ### Installation & Execution
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/aetherops.git
+git clone https://github.com/brucerror/triagesphere.git
 
 # 2. Navigate to project directory
-cd aetherops
+cd triagesphere
 
 # 3. Install dependencies
 npm install
@@ -192,7 +192,7 @@ TriageSphere is engineered with a client-side reactive state engine, making it d
 ### Deploy to Vercel in 2 Minutes:
 1. Push this repository to your GitHub account.
 2. Sign in to [Vercel](https://vercel.com/) with GitHub.
-3. Click **"Add New Project"** and select `aetherops` (or your renamed repo).
+3. Click **"Add New Project"** and select `triagesphere`.
 4. Leave default settings (Framework: **Vite**, Build Command: `npm run build`, Output Directory: `dist`).
 5. Click **"Deploy"**. Your live production URL will be ready in under 60 seconds!
 
